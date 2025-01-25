@@ -1,9 +1,25 @@
 # WeirdAAL (AWS Attack Library)
 WeirdAAL (AWS Attack Library)
 
-<img src="https://camo.githubusercontent.com/57f3a73c5016581281f92a5c4adcbc4215685b7c/687474703a2f2f6561726e746869732e6e65742f77702d636f6e74656e742f75706c6f6164732f323031332f31322f3135303439305f6c617267652e6a7067"  align="center" height="240" width="350">
+Install instructions :
+```
+git clone https://github.com/carnal0wnage/weirdAAL.git
+cd weirdAAL
+python3 -m venv weirdAAL
+source weirdAAL/bin/activate
+pip3 install -r requirements.txt
+python3 create_dbs.py
+```
 
+Usage instructions :
+```
+# Recon all services
+python3 weirdAAL.py -m recon_all -t name-of-my-recon
 
+# List services that have been found
+python3 weirdAAL.py -m list_services_by_key -t name-of-my-recon
+```
 
+All credits to [carnal0wnage](https://github.com/carnal0wnage)
 Documentation available on the [wiki](https://github.com/carnal0wnage/weirdAAL/wiki).
 
