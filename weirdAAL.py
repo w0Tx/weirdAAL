@@ -15,7 +15,8 @@ from modules import *
 import sys
 import builtins
 import re
-from tabulate import tabulate
+from collections.abc import Iterable
+from collections import namedtuple
 import textwrap
 
 # Let a user set .aws/credentials or another file as the credentials source
@@ -64,7 +65,7 @@ def perform_credential_check():
     except ClientError as e:
         print("[X] The AWS Access Keys are not valid/active [X]")
         sys.exit(1)
-    
+
 
 def method_create():
     try:
