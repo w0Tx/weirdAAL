@@ -2,7 +2,7 @@
 
 Install instructions :
 ```
-git clone https://github.com/carnal0wnage/weirdAAL.git
+git clone https://github.com/w0Tx/weirdAAL.git
 cd weirdAAL
 python3 -m venv weirdAAL
 source weirdAAL/bin/activate
