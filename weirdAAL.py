@@ -80,7 +80,6 @@ def method_create():
         exit(1)
 
 builtins.aws_module_methods_info = {}
-builtins.gcp_module_methods_info = {}
 
 def get_methods_for_classname(classname):
     methods = []
@@ -100,9 +99,6 @@ def make_list_of_methods(cloud_service, mod):
     if cloud_service == 'aws':
         new_mod_name = re.sub("modules.aws.", "", mod)
         aws_module_methods_info[new_mod_name.upper()] = meths
-    elif cloud_service == 'gcp':
-        new_mod_name = re.sub("modules.gcp.", "", mod)
-        gcp_module_methods_info[new_mod_name.upper()] = meths
 
 
 def make_the_list():
@@ -110,9 +106,6 @@ def make_the_list():
         if (m.startswith("modules.aws")
         and not (m == "modules.aws")):
             make_list_of_methods("aws", m)
-        elif ((m.startswith("modules.gcp"))
-        and not (m == "modules.gcp")):
-            make_list_of_methods("gcp", m)
 
 def normalize_comments(string):
     string = textwrap.fill(string.strip(), 40)
@@ -132,9 +125,7 @@ def make_tabulate_rows(hash, cloud_provider):
 
 def print_the_list():
     aws_rows = make_tabulate_rows(aws_module_methods_info, 'AWS')
-    gcp_rows = make_tabulate_rows(gcp_module_methods_info, 'GCP')
     print(tabulate(aws_rows, headers=['Cloud Provider', 'Service', 'Mod', 'Desc']))
-    print(tabulate(gcp_rows, headers=['Cloud Provider', 'Service', 'Mod', 'Desc']))
 
 if (args.list):
     make_the_list()
