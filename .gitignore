@@ -4,6 +4,7 @@
 #weirdAAL.db
 *.db
 *.sqlite
+target.txt
 
 # anything in loot/* or screenshots/*
 loot/*
