@@ -9,8 +9,9 @@
 import boto3
 import argparse
 import os
-from botocore.exceptions import ClientError
-from botocore.exceptions import ConfigParseError
+import botocore
+#from botocore.exceptions import ClientError
+#from botocore.exceptions import ConfigParseError
 from modules import *
 import sys
 import builtins
@@ -21,33 +22,31 @@ import textwrap
 
 # Let a user set .aws/credentials or another file as the credentials source
 # If user-defined, must be an absolute path
-if 'AWS_SHARED_CREDENTIALS_FILE' not in os.environ:
-    try:
-        #  print("loading .env into our ENV")
-        os.environ['AWS_SHARED_CREDENTIALS_FILE'] = '.env'
-    except Exception as e:
-        print("Error: {}".format(e))
-        sys.exit("fix your credentials file -exiting...")
+#if 'AWS_SHARED_CREDENTIALS_FILE' not in os.environ:
+#    try:
+#        #  print("loading .env into our ENV")
+#        os.environ['AWS_SHARED_CREDENTIALS_FILE'] = '.env'
+#    except Exception as e:
+#        print("Error: {}".format(e))
+#        sys.exit("fix your credentials file -exiting...")
 
 # If you want to use a transparent + supports SSL proxy you can put it here
 # os.environ['HTTPS_PROXY'] = 'https://127.0.0.1:3128'
-
-sys.path.append("modules")
-for module in all_modules:
-    exec("from %s import *" % module)
-
-
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-m", "--module", help="list the module you would like to run", action="store", type=str, required=False)
 parser.add_argument("-t", "--target", help="Give your target a name so we can track results", action="store", type=str, required=False)
 parser.add_argument("-a", "--arguments", help="Provide a list of arguments, comma separated. Ex: arg1,arg2,arg3", action="store", type=str, required=False)
 parser.add_argument("-l", "--list", help="list modules", required=False, action="store_true")
+parser.add_argument("-p", "--profile", help="AWS CLI profile if multiple exists in credentials file", action="store", type=str, required=False)
 parser.add_argument("-v", "--verbosity", help="increase output verbosity", action="store_true")
 args = parser.parse_args()
 
 # Provides us with a global var "db_name" we can access anywhere
 builtins.db_name = "weirdAAL.db"
+
+if args.profile:
+    os.environ['AWS_PROFILE'] = args.profile
 
 
 def perform_credential_check():
@@ -57,15 +56,20 @@ def perform_credential_check():
     '''
 
     try:
-        client = boto3.client("sts")
-        account_id = client.get_caller_identity()["Account"]
+        session = boto3.Session()
+        credentials = session.get_credentials()
+        #client = boto3.client("sts")
+        #account_id = client.get_caller_identity()["Account"]
+        print(f"[+] Successfully authenticated with {credentials.access_key}")
+    except AttributeError:
+        print("[X] Didn't find credentials in ~/.aws/credentials")
+        sys.exit(1)
     except (botocore.exceptions.NoCredentialsError) as e:
-        print("Error: Unable to locate credentials")
+        print("[X] Unable to locate credentials")
         sys.exit("fix your credentials file -exiting...")
-    except ClientError as e:
+    except botocore.exceptions.ClientError as e:
         print("[X] The AWS Access Keys are not valid/active [X]")
         sys.exit(1)
-
 
 def method_create():
     try:
@@ -126,8 +130,6 @@ def make_tabulate_rows(hash, cloud_provider):
 
     return entire_contents
 
-
-
 def print_the_list():
     aws_rows = make_tabulate_rows(aws_module_methods_info, 'AWS')
     gcp_rows = make_tabulate_rows(gcp_module_methods_info, 'GCP')
@@ -140,12 +142,11 @@ if (args.list):
     sys.exit(1)
 
 # Need to figure out if we have keys in the ENV or not
-try:
-    perform_credential_check()
-except:
-    print("[-] Check the above error message and fix to use weirdAAL [-]")
-    sys.exit(1)
+perform_credential_check()
 
+sys.path.append("modules")
+for module in all_modules:
+    exec("from %s import *" % module)
 
 # arg_list has to be defined otherwise will cause an exception
 arg_list = None
@@ -167,7 +168,6 @@ if (args.module):
                 arg(arg_list)
             else:
                 arg()
-
 
 # Allow the user to specify verbosity for debugging
 if (args.verbosity):
